@@ -1,0 +1,20 @@
+# Python generated files
+__pycache__/
+*.py[cod]
+
+# Python virtual environments
+.venv/
+
+# pyenv or uv generated files
+.python-version
+
+# VS Code files
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# Local history for VS Code
+.history/
