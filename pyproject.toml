@@ -1,0 +1,10 @@
+[project]
+name = "store-monitoring-system"
+version = "0.1.0"
+description = "A store monitoring system"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi[standard]>=0.115.6",
+    "psycopg[binary]>=3.2.4",
+]
