@@ -1,6 +1,9 @@
 # Dataset directory
 dataset/
 
+# Practice files
+practice*.py
+
 # Python generated files
 __pycache__/
 *.py[cod]
