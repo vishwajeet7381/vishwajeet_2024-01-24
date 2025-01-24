@@ -4,7 +4,7 @@ from pathlib import Path
 from app.database import DatabaseManager
 
 
-class SetupDatabase:
+class DatabaseSetup:
     current_file_path: Path = Path(__file__)
 
     @classmethod
@@ -44,7 +44,9 @@ class SetupDatabase:
                 next(csv_reader)
 
                 with db_cur.copy(
-                    "COPY store_status (store_id, status, timestamp_utc) FROM STDIN"
+                    """
+                    COPY store_status (store_id, status, timestamp_utc)
+                    FROM STDIN;"""
                 ) as copy:
                     for record in csv_reader:
                         copy.write_row(record)
@@ -54,19 +56,42 @@ class SetupDatabase:
 
                 next(csv_reader)
 
+                db_cur.execute(
+                    """
+                    CREATE TEMP TABLE temp_business_hours
+                    (LIKE business_hours INCLUDING DEFAULTS)"""
+                )
+
                 with db_cur.copy(
-                    "COPY business_hours (store_id, day_of_week, start_time_local, end_time_local) FROM STDIN"
+                    """
+                    COPY temp_business_hours (
+                        store_id,
+                        day_of_week,
+                        start_time_local,
+                        end_time_local
+                    )
+                    FROM STDIN;"""
                 ) as copy:
                     for record in csv_reader:
                         copy.write_row(record)
+
+                db_cur.execute(
+                    """
+                    INSERT INTO business_hours
+                    SELECT *
+                    FROM temp_business_hours ON CONFLICT (store_id, day_of_week) DO NOTHING;"""
+                )
 
             with store_timezone_file_path.open("rt", newline="") as file_handler:
                 csv_reader = csv.reader(file_handler)
 
                 next(csv_reader)
 
-                with db_cur.copy(
-                    "COPY store_timezone (store_id, timezone_str) FROM STDIN"
-                ) as copy:
-                    for record in csv_reader:
-                        copy.write_row(record)
+                db_cur.executemany(
+                    """
+                    INSERT INTO store_timezone (store_id, timezone_str)
+                    VALUES (%s, %s) ON CONFLICT (store_id) DO
+                    UPDATE
+                    SET timezone_str = EXCLUDED.timezone_str;""",
+                    tuple(csv_reader),
+                )
