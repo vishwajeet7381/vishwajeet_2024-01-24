@@ -1,4 +1,5 @@
 import psycopg
+from psycopg.rows import dict_row
 
 from app.config import Config
 
@@ -13,11 +14,11 @@ class DatabaseManager:
         password: str | None = None,
     ):
         self._conn_info: dict = {
-            "host": host or Config.POSTGRESQL_HOST,
-            "port": port or Config.POSTGRESQL_PORT,
-            "dbname": dbname or Config.POSTGRESQL_DBNAME,
-            "user": user or Config.POSTGRESQL_USER,
-            "password": password or Config.POSTGRESQL_PASSWORD,
+            "host": host or Config.postgresql_host,
+            "port": port or Config.postgresql_port,
+            "dbname": dbname or Config.postgresql_dbname,
+            "user": user or Config.postgresql_user,
+            "password": password or Config.postgresql_password,
         }
 
         self._conn: psycopg.Connection
@@ -30,8 +31,8 @@ class DatabaseManager:
 
         conn_info_str = psycopg.conninfo.make_conninfo(**conn_info_dict)
 
-        self._conn = psycopg.connect(conn_info_str)
-        self._cur = self.conn.cursor()
+        self._conn = psycopg.connect(conn_info_str, row_factory=dict_row)
+        self._cur = self._conn.cursor()
 
         return self._cur
 
