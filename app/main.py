@@ -26,7 +26,7 @@ app = FastAPI(
 )
 
 
-@app.post("/trigger_report")
+@app.post("/trigger_report", tags=["report"])
 async def trigger_report(background_tasks: BackgroundTasks) -> dict:
     report_generator_ = ReportGenerator()
 
@@ -37,7 +37,7 @@ async def trigger_report(background_tasks: BackgroundTasks) -> dict:
     return {"report_id": report_id}
 
 
-@app.get("/get_report/{report_id}")
+@app.get("/get_report/{report_id}", tags=["report"])
 async def get_report(report_id: str) -> FileResponse:
     report_generator_ = ReportGenerator(report_id)
 
