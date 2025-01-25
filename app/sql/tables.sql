@@ -1,36 +1,38 @@
 CREATE TABLE IF NOT EXISTS store_status (
-    store_id uuid,
-    status varchar(10) CHECK (status IN ('active', 'inactive')),
-    timestamp_utc timestamp,
+    store_id UUID,
+    timestamp_utc TIMESTAMP(6),
+    status VARCHAR(10) CHECK (status IN ('active', 'inactive')),
     PRIMARY KEY (store_id, timestamp_utc)
 );
 CREATE TABLE IF NOT EXISTS business_hours (
-    store_id uuid,
-    day_of_week integer CHECK (
+    store_id UUID,
+    day_of_week INTEGER CHECK (
         day_of_week BETWEEN 0 AND 6
     ),
-    start_time_local time NOT NULL,
-    end_time_local time NOT NULL,
+    start_time_local TIME(6) NOT NULL,
+    end_time_local TIME(6) NOT NULL,
     PRIMARY KEY (store_id, day_of_week)
 );
 CREATE TABLE IF NOT EXISTS store_timezone (
-    store_id uuid PRIMARY KEY,
-    timezone_str varchar(50) DEFAULT 'America/Chicago'
+    store_id UUID PRIMARY KEY,
+    timezone_str VARCHAR(50) DEFAULT 'America/Chicago' NOT NULL
 );
 CREATE TABLE IF NOT EXISTS reports (
-    report_id uuid PRIMARY KEY,
-    status varchar(20) DEFAULT 'running',
-    started_at timestamp DEFAULT current_timestamp,
-    completed_at timestamp
+    report_id UUID PRIMARY KEY,
+    status VARCHAR(20) DEFAULT 'running' CHECK (
+        status IN ('running', 'completed', 'failed')
+    ),
+    started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    completed_at TIMESTAMP
 );
 CREATE TABLE IF NOT EXISTS report_data (
-    report_id uuid,
-    store_id uuid,
-    uptime_last_hour integer,
-    uptime_last_day integer,
-    uptime_last_week integer,
-    downtime_last_hour integer,
-    downtime_last_day integer,
-    downtime_last_week integer,
+    report_id UUID,
+    store_id UUID,
+    uptime_last_hour DOUBLE PRECISION NOT NULL,
+    uptime_last_day DOUBLE PRECISION NOT NULL,
+    uptime_last_week DOUBLE PRECISION NOT NULL,
+    downtime_last_hour DOUBLE PRECISION NOT NULL,
+    downtime_last_day DOUBLE PRECISION NOT NULL,
+    downtime_last_week DOUBLE PRECISION NOT NULL,
     PRIMARY KEY (report_id, store_id)
 );
