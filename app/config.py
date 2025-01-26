@@ -10,3 +10,5 @@ class Config:
 
     create_tables = False
     load_data = False
+
+    delete_report = True
