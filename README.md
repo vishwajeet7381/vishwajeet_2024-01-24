@@ -97,10 +97,6 @@ This application provides APIs to generate reports on the uptime and downtime of
 
 ## Report Generation Logic
 
-Here’s an updated and more detailed explanation of the **Report Generation Logic** section for your `README.md`. This provides a deeper dive into how the system calculates uptime and downtime, handles edge cases, and processes data.
-
-## Report Generation Logic
-
 1. **Uptime and Downtime Calculation**
 
    The system calculates uptime and downtime for three intervals:
