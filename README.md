@@ -57,9 +57,8 @@ This application provides APIs to generate reports on the uptime and downtime of
      export SM_POSTGRESQL_PASSWORD=value
      ```
 
-3. **Create Database Schema and Load Data**:
+3. **Dataset**:
 
-   - Set `Config.create_tables = True` and `Config.load_data = True` in `app/config.py`.
    - Place your CSV files (`store_status.csv`, `store_business_hours.csv`, `store_timezone.csv`) in the `dataset` directory.
 
 ## API Documentation
