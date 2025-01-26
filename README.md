@@ -13,6 +13,7 @@ This application provides APIs to generate reports on the uptime and downtime of
 7. [Configuration](#configuration)
 8. [Running the Application](#running-the-application)
 9. [Testing](#testing)
+10. [Improvement Ideas](#improvement-ideas)
 
 ## Features
 
@@ -52,13 +53,12 @@ This application provides APIs to generate reports on the uptime and downtime of
      ```bash
      export SM_POSTGRESQL_HOST=value
      export SM_POSTGRESQL_PORT=value
-     export SM_POSTGRESQL_DBNAME=value | "postgres"
-     export SM_POSTGRESQL_USER=value | "postgres"
+     export SM_POSTGRESQL_DBNAME=value
+     export SM_POSTGRESQL_USER=value
      export SM_POSTGRESQL_PASSWORD=value
      ```
 
 3. **Dataset**:
-
    - Place your CSV files (`store_status.csv`, `store_business_hours.csv`, `store_timezone.csv`) in the `dataset` directory.
 
 ## API Documentation
@@ -108,26 +108,20 @@ This application provides APIs to generate reports on the uptime and downtime of
    **Steps**:
 
    1. **Determine Report Intervals**:
-
       - The latest timestamp in `store_status.csv` is considered the "current time."
       - Intervals are calculated as:
         - **Last Hour**: `[current_time - 1 hour, current_time]`
         - **Last Day**: `[current_time - 24 hours, current_time]`
         - **Last Week**: `[current_time - 7 days, current_time]`
-
    2. **Filter Activity Polls**:
-
       - Only polls within the business hours (converted to UTC) are considered.
       - Polls outside business hours are ignored.
-
    3. **Interpolate Uptime/Downtime**:
-
       - For each interval, the system divides the time into segments based on activity polls.
       - If no polls exist during a segment:
         - Assume the store is **inactive** (downtime).
       - If polls exist:
         - Use the status of the nearest previous poll to determine uptime/downtime for the segment.
-
    4. **Extrapolate to Full Interval**:
       - The uptime/downtime for each segment is extrapolated to the entire interval.
 
@@ -146,18 +140,12 @@ This application provides APIs to generate reports on the uptime and downtime of
 3. **Assumptions**
 
    1. **Poll Frequency**:
-
       - Polls occur roughly every hour, but intervals may vary.
       - If no polls exist during business hours, the store is assumed to be **inactive** for the entire interval.
-
    2. **Business Hours**:
-
       - If no business hours are provided, the store is assumed to be open 24/7.
-
    3. **Time Zones**:
-
       - If no timezone is provided, the default is `America/Chicago`.
-
    4. **Report Intervals**:
       - Intervals are calculated relative to the latest timestamp in `store_status.csv`.
 
@@ -201,3 +189,20 @@ Either use the automated interactive documentation UI accessed via `/docs` and `
 
 3. **Download Report**:
    - If the report is completed, the CSV file will be downloaded automatically.
+
+## Improvement Ideas
+
+1. **Performance**:
+   - Keep track of data updates and avoid processing when result is already available for the current dataset.
+2. **Error Handling & Logging**:
+   - Implement structured error handling.
+   - Add logging for critical operations, errors, and system events.
+3. **Security**:
+   - Add user authentication and role-based access control.
+   - Implement rate limiting.
+4. **Deployment**:
+   - Containerize the application using Docker.
+5. **Testing**:
+   - Add unit tests for critical components.
+6. **User Experience**:
+   - Add progress tracking and email notifications for report completion.
