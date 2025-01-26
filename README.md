@@ -42,7 +42,7 @@ This application provides APIs to generate reports on the uptime and downtime of
 1. **Clone the Repository**:
 
    ```bash
-   git clone https://github.com/your-username/store-monitoring-system.git
+   git clone https://github.com/vishwajeet7381/vishwajeet_2024-01-24.git
    cd store-monitoring-system
    ```
 
