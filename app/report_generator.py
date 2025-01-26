@@ -77,12 +77,12 @@ class ReportGenerator:
                 """
                 SELECT 
                     store_id, 
-                    uptime_last_hour,
-                    uptime_last_day,
-                    uptime_last_week,
-                    downtime_last_hour,
-                    downtime_last_day,
-                    downtime_last_week
+                    TO_CHAR(uptime_last_hour, 'FM990.00') AS uptime_last_hour,
+                    TO_CHAR(uptime_last_day, 'FM990.00') AS uptime_last_day,
+                    TO_CHAR(uptime_last_week, 'FM990.00') AS uptime_last_week,
+                    TO_CHAR(downtime_last_hour, 'FM990.00') AS downtime_last_hour,
+                    TO_CHAR(downtime_last_day, 'FM990.00') AS downtime_last_day,
+                    TO_CHAR(downtime_last_week, 'FM990.00') AS downtime_last_week
                 FROM report_data 
                 WHERE report_id = %s;""",
                 (self._report_id,),
@@ -118,7 +118,7 @@ class ReportGenerator:
 
             result = db_cur.fetchone()
 
-            self._current_time = result["max_time"].astimezone(ZoneInfo("UTC"))
+            self._current_time = result["max_time"].replace(tzinfo=ZoneInfo("UTC"))
 
     def _get_all_stores(self) -> list[dict[str, str]]:
         with DatabaseManager() as db_cur:
@@ -230,8 +230,8 @@ class ReportGenerator:
 
                 observations = [
                     {
-                        "timestamp_utc": obs["timestamp_utc"].astimezone(
-                            ZoneInfo("UTC")
+                        "timestamp_utc": obs["timestamp_utc"].replace(
+                            tzinfo=ZoneInfo("UTC")
                         ),
                         "status": obs["status"],
                     }
@@ -252,25 +252,28 @@ class ReportGenerator:
         self,
         interval_start: datetime,
         interval_end: datetime,
-        business_hours: dict[int, list],
+        business_hours: dict[int, list[time]],
         store_timezone: ZoneInfo,
     ) -> list[list[datetime]]:
         periods = []
-        current_day = interval_start.date()
 
-        while current_day <= interval_end.date():
-            day_of_week = current_day.weekday()
+        start_date = interval_start.astimezone(store_timezone).date()
+        end_date = interval_end.astimezone(store_timezone).date()
+
+        while start_date <= end_date:
+            day_of_week = start_date.weekday()
+
             start_time, end_time = business_hours.get(
                 day_of_week, (time(0, 0), time(23, 59, 59))
             )
 
             # Create timezone-aware datetimes with explicit fold
             local_start = datetime.combine(
-                current_day, start_time, tzinfo=store_timezone
+                start_date, start_time, tzinfo=store_timezone
             ).replace(fold=0)
 
             local_end = datetime.combine(
-                current_day, end_time, tzinfo=store_timezone
+                start_date, end_time, tzinfo=store_timezone
             ).replace(fold=0)
 
             # Convert to UTC
@@ -284,7 +287,7 @@ class ReportGenerator:
             if period_start < period_end:
                 periods.append([period_start, period_end])
 
-            current_day += timedelta(days=1)
+            start_date += timedelta(days=1)
 
         return periods
 
@@ -296,7 +299,10 @@ class ReportGenerator:
     ) -> tuple[float, float]:
         if not observations:
             # Assume active if no data
-            return (end - start).total_seconds() / 60, 0
+            return (
+                0,
+                (end - start).total_seconds() / 60,
+            )
 
         # Add interval boundaries as virtual observations
         sorted_obs = [
