@@ -26,7 +26,7 @@ app = FastAPI(
 )
 
 
-@app.post("/trigger_report", tags=["report"])
+@app.post("/trigger_report", tags=["report"], summary="Initiates report generation")
 async def trigger_report(background_tasks: BackgroundTasks) -> dict:
     report_generator_ = ReportGenerator()
 
@@ -37,8 +37,12 @@ async def trigger_report(background_tasks: BackgroundTasks) -> dict:
     return {"report_id": report_id}
 
 
-@app.get("/get_report/{report_id}", tags=["report"])
-async def get_report(report_id: str) -> FileResponse:
+@app.get(
+    "/get_report/{report_id}",
+    tags=["report"],
+    summary="Returns the status of the report or the CSV file if completed",
+)
+async def get_report(report_id: str, background_tasks: BackgroundTasks) -> FileResponse:
     report_generator_ = ReportGenerator(report_id)
 
     report_status = report_generator_.check_status()
@@ -47,6 +51,9 @@ async def get_report(report_id: str) -> FileResponse:
         return {"status": "Running"}
 
     report_file = report_generator_.get_report_path()
+
+    if Config.delete_report:
+        background_tasks.add_task(lambda: report_file.unlink())
 
     return FileResponse(
         report_file,
