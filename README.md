@@ -192,17 +192,19 @@ Either use the automated interactive documentation UI accessed via `/docs` and `
 
 ## Improvement Ideas
 
-1. **Performance**:
+1. **Documentation**:
+   - Add more comments and docstrings.
+2. **Performance**:
    - Keep track of data updates and avoid processing when result is already available for the current dataset.
-2. **Error Handling & Logging**:
+3. **Error Handling & Logging**:
    - Implement structured error handling.
    - Add logging for critical operations, errors, and system events.
-3. **Security**:
+4. **Security**:
    - Add user authentication and role-based access control.
    - Implement rate limiting.
-4. **Deployment**:
+5. **Deployment**:
    - Containerize the application using Docker.
-5. **Testing**:
+6. **Testing**:
    - Add unit tests for critical components.
-6. **User Experience**:
+7. **User Experience**:
    - Add progress tracking and email notifications for report completion.
