@@ -298,7 +298,7 @@ class ReportGenerator:
         observations: list[dict[str, str | datetime]],
     ) -> tuple[float, float]:
         if not observations:
-            # Assume active if no data
+            # Assume inactive if no data
             return (
                 0,
                 (end - start).total_seconds() / 60,
